@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modular Drift Motion Arts</title>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100&display=swap"></noscript>
+<style>
+  :root {
+    --ink: #050505;
+    --paper: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--ink);
+    overflow: hidden;
+  }
+
+  body {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+    padding: 6vh 6vw;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    touch-action: none;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .headline-text,
+  .footer-text {
+    display: block;
+    text-align: center;
+    color: var(--paper);
+    font-family: 'JetBrains Mono', 'Consolas', 'Menlo', 'Courier New', monospace;
+    font-weight: 100;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    will-change: transform, filter;
+  }
+
+  .headline-text { font-size: clamp(16px, 2.1vw, 26px); }
+  .footer-text { font-size: clamp(12px, 1.5vw, 18px); }
+
+  .char {
+    display: inline-block;
+    will-change: transform, filter;
+  }
+
+  main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stage {
+    width: min(70vw, 780px);
+  }
+
+  .logo {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .mark {
+    fill: var(--paper);
+    will-change: transform;
+  }
+
+  .connector {
+    stroke: var(--paper);
+    stroke-width: 30;
+    stroke-linecap: round;
+  }
+
+  /* crisp letters: no goo filter applied to this layer at all */
+  .letter-group {
+    will-change: transform;
+  }
+
+  .letter-path {
+    fill: var(--ink);
+  }
+</style>
+</head>
+<body>
+
+<a href="https://www.instagram.com/modular.drift/?hl=en" target="_blank" rel="noopener">
+  <span class="headline-text" id="headlineText">Modular Drift Motion Arts</span>
+</a>
+
+<main>
+  <div class="stage">
+    <svg class="logo" viewBox="0 0 496.11 285.52" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- classic "goo" filter: blur then sharpen alpha, so nearby marks
+             fuse with a soft liquid neck instead of just floating apart -->
+        <filter id="goo" x="-90%" y="-90%" width="280%" height="280%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="17" result="blur"/>
+          <feColorMatrix in="blur" mode="matrix"
+            values="1 0 0 0 0
+                    0 1 0 0 0
+                    0 0 1 0 0
+                    0 0 0 36 -16" result="goo"/>
+        </filter>
+
+        <!-- gentle chromatic aberration on the shape edges: red and blue
+             channels nudged apart, screened back together over green -->
+        <filter id="chroma" x="-60%" y="-60%" width="220%" height="220%">
+          <feOffset id="chromaOffR" in="SourceGraphic" dx="-0.7" dy="0.3" result="off-r"/>
+          <feColorMatrix in="off-r" type="matrix"
+            values="1 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 1 0" result="red"/>
+          <feOffset id="chromaOffB" in="SourceGraphic" dx="0.7" dy="-0.3" result="off-b"/>
+          <feColorMatrix in="off-b" type="matrix"
+            values="0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 1 0 0
+                    0 0 0 1 0" result="blue"/>
+          <feColorMatrix in="SourceGraphic" type="matrix"
+            values="0 0 0 0 0
+                    0 1 0 0 0
+                    0 0 0 0 0
+                    0 0 0 1 0" result="green"/>
+          <feBlend in="red" in2="blue" mode="screen" result="rb"/>
+          <feBlend in="rb" in2="green" mode="screen"/>
+        </filter>
+      </defs>
+
+      <!-- chroma wraps the already-goo'd blob shapes -->
+      <g filter="url(#chroma)">
+        <g filter="url(#goo)">
+          <!-- always-present thin "spine" connecting each adjacent pair of
+               shapes, updated every frame to follow their current centers.
+               Guarantees continuous mass for the goo filter to bridge
+               across, so shapes never fully visually detach even when
+               pushed to the edge of their range. -->
+          <line id="connector-0" class="connector"/>
+          <line id="connector-1" class="connector"/>
+          <line id="connector-2" class="connector"/>
+
+          <g id="Layer_1" class="mark">
+            <path d="M441.11,184.77l10.75,49.64h4.32l-2.06-8.96h5.01l3.42,8.96h4.32l-19.33-49.64h-6.43ZM452.53,218.39l-5.89-25.99,9.84,25.99h-3.94Z" fill="none"/>
+            <path d="M418.42,233.26c15.69,30.14,38.81,52.18,56.72,52.18,21.68,0,27.49-32.33,12.98-72.21-14.51-39.88-43.86-72.21-65.54-72.21-14.39,0-21.78,14.25-20.88,35.48M143.62,285.52,462.55,234.41l-3.42-8.96h-5.01l2.06,8.96h-4.32l-10.75-49.64h6.43l19.33,49.64h-4.32Z"/>
+            <polygon points="452.53 218.39 456.47 218.39 446.63 192.4 452.53 218.39"/>
+          </g>
+
+          <g id="Layer_4" class="mark">
+            <polygon points="353.11 164.42 359.87 197.92 346.36 164.42 340.4 164.42 355.31 213.62 359.53 213.62 349.8 182.21 362.85 213.62 366.44 213.62 360.5 182.21 369.79 213.62 373.98 213.62 359.07 164.42 353.11 164.42" fill="none"/>
+            <path d="M315.67,213.8c19.61,39.52,49.65,68.86,72.75,68.86,19.45,0,28.68-20.8,25.64-50.97l-16.77-56.92c-19.53-41.41-50.75-72.63-74.57-72.63-18.81,0-28.07,19.47-25.9,48.06M369.79,213.62l-9.29-31.41,5.95,31.41h-3.6l-13.04-31.41,9.73,31.41h-4.23l-14.91-49.2h5.96l13.52,33.49-6.77-33.49h5.96l14.91,49.2h-4.19Z"/>
+          </g>
+
+          <g id="Layer_3" class="mark">
+            <path d="M235.25,144.81h-6.21l14.91,49.2h6.34c7.79,0,5.82-12.68-1.68-33.3-4.32-11.86-7.99-15.9-13.35-15.9ZM247.99,186.38h-2.05l-10.27-33.93h2.05c2.74,0,4.51,2.52,6.76,8.7,5.46,15.01,7.35,25.23,3.51,25.23Z" fill="none"/>
+            <path d="M186.99,195.82c24.44,51.22,63.13,89.7,92.7,89.7,25.12,0,36.6-27.77,31.62-67.52l-18.91-63.82c-24.28-53.5-64.39-94.3-94.84-94.3-24.34,0-35.88,26.07-32.04,63.85M250.29,194.01h-6.34l-14.91-49.2h6.21c5.36,0,9.04,4.04,13.35,15.9,7.51,20.63,9.47,33.3,1.68,33.3Z"/>
+            <path d="M237.72,152.44h-2.05l10.27,33.93h2.05c3.85,0,1.96-10.22-3.51-25.23-2.25-6.18-4.02-8.7-6.76-8.7Z"/>
+          </g>
+
+          <g id="Layer_2" class="mark">
+            <polygon points="91.71 113.08 98.48 146.57 84.96 113.08 79 113.08 93.91 162.28 98.14 162.28 88.41 130.87 101.45 162.28 105.05 162.28 99.1 130.87 108.39 162.28 112.58 162.28 97.67 113.08 91.71 113.08" fill="none"/>
+            <path d="M161.09,121.4C130.93,52.8,79.68,0,40.96,0-1.39,0-12.74,63.14,15.6,141.03c28.35,77.89,85.66,141.03,128.01,141.03,32.23,0,46.5-36.56,38.99-88.36M108.39,162.28l-9.29-31.41,5.94,31.41h-3.6l-13.04-31.41,9.73,31.41h-4.23l-14.91-49.2h5.96l13.52,33.49-6.77-33.49h5.96l14.91,49.2h-4.19ZM229.04,141.35"/>
+          </g>
+        </g>
+      </g>
+
+      <!-- crisp letters on top, no filter. Raw coordinates here are in the
+           original letters-export canvas; JS bakes the offset into blob
+           space directly each frame rather than relying on a static
+           ancestor transform (which caused transform-origin issues). -->
+      <g id="Layer_1-letter" class="letter-group">
+        <path class="letter-path" fill-rule="evenodd" transform="translate(347.73,149.81) scale(0.1107)" d="M843.64,315.8l97.1,448.39h39.03l-18.62-80.9h45.3l30.87,80.9h39.03l-174.6-448.39h-58.12ZM946.76,619.47l-41.86-184.56-11.38-50.17,18.71,49.43,70.14,185.3h-35.61Z"/>
+      </g>
+      <g id="Layer_4-letter" class="letter-group">
+        <polygon class="letter-path" points="648.39 696.2 655.16 729.7 641.64 696.2 635.68 696.2 650.59 745.4 654.82 745.4 645.09 713.99 658.13 745.4 661.73 745.4 655.78 713.99 665.07 745.4 669.26 745.4 654.35 696.2 648.39 696.2"/>
+      </g>
+      <g id="Layer_3-letter" class="letter-group">
+        <path class="letter-path" d="M530.54,676.59h-6.21l14.91,49.2h6.34c7.79,0,5.82-12.68-1.68-33.3-4.32-11.86-7.99-15.9-13.35-15.9ZM543.27,718.16h-2.05l-10.27-33.93h2.05c2.74,0,4.51,2.52,6.76,8.7,5.46,15.01,7.35,25.23,3.51,25.23Z"/>
+      </g>
+      <g id="Layer_2-letter" class="letter-group">
+        <polygon class="letter-path" points="387 644.86 393.76 678.35 380.25 644.86 374.29 644.86 389.2 694.06 393.43 694.06 383.7 662.65 396.74 694.06 400.33 694.06 394.39 662.65 403.68 694.06 407.87 694.06 392.96 644.86 387 644.86"/>
+        <path class="letter-path" d="M403.68,694.06l-9.29-31.41,5.94,31.41h-3.6l-13.04-31.41,9.73,31.41h-4.23l-14.91-49.2h5.96l13.52,33.49-6.77-33.49h5.96l14.91,49.2h-4.19Z"/>
+      </g>
+    </svg>
+  </div>
+</main>
+
+<a href="mailto:ron@mdma.design,will@mdma.design">
+  <span class="footer-text" id="footerText">Contact Us</span>
+</a>
+
+<script>
+  // split text into individually-animatable character spans
+  function wrapChars(el) {
+    const text = el.textContent;
+    el.textContent = '';
+    const spans = [];
+    for (const ch of text) {
+      const span = document.createElement('span');
+      span.className = 'char';
+      span.textContent = ch === ' ' ? '\u00A0' : ch;
+      el.appendChild(span);
+      spans.push(span);
+    }
+    return spans;
+  }
+
+  // proximity blur: each letter softens (CSS blur) and scales down based
+  // on its OWN distance to the cursor, so the effect ripples letter by
+  // letter rather than applying uniformly to the whole line
+  function setupTextProximity(elId, maxBlur, hoverScale) {
+    const chars = wrapChars(document.getElementById(elId));
+    const state = chars.map(() => ({ blur: 0, scale: 1 }));
+    let mouseX = -99999, mouseY = -99999;
+
+    window.addEventListener('pointermove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+    window.addEventListener('pointerleave', () => {
+      mouseX = -99999;
+      mouseY = -99999;
+    });
+    window.addEventListener('pointerup', () => {
+      mouseX = -99999;
+      mouseY = -99999;
+    });
+
+    function tick() {
+      chars.forEach((span, i) => {
+        const rect = span.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dist = Math.hypot(mouseX - cx, mouseY - cy);
+        const radius = Math.max(rect.height * 3.2, 34);
+        const strength = Math.max(0, 1 - dist / radius);
+
+        const blurTarget = maxBlur * strength;
+        const scaleTarget = 1 - (1 - hoverScale) * strength;
+
+        const st = state[i];
+        st.blur += (blurTarget - st.blur) * 0.18;
+        if (Math.abs(blurTarget - st.blur) < 0.01) st.blur = blurTarget;
+
+        st.scale += (scaleTarget - st.scale) * 0.18;
+        if (Math.abs(scaleTarget - st.scale) < 0.001) st.scale = scaleTarget;
+
+        span.style.filter = `blur(${st.blur.toFixed(3)}px)`;
+        span.style.transform = `scale(${st.scale.toFixed(4)})`;
+      });
+
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  setupTextProximity('headlineText', 3.575, 0.8);
+  setupTextProximity('footerText', 3.575, 0.8);
+</script>
+
+<script>
+  const svg = document.querySelector('svg.logo');
+
+  // pair each blob mark with its crisp letter counterpart, moved in sync
+  const pairIds = ['Layer_2', 'Layer_3', 'Layer_4', 'Layer_1']; // M, D, M, A
+  const pairs = pairIds.map(id => ({
+    mark: document.getElementById(id),
+    letter: document.getElementById(id + '-letter')
+  }));
+
+  const connectors = [
+    document.getElementById('connector-0'),
+    document.getElementById('connector-1'),
+    document.getElementById('connector-2')
+  ];
+
+  const RADIUS = 255;     // user-space influence radius (+50%)
+  const MAX_PUSH = 60;    // user-space max displacement (+50%; connector spine keeps shapes linked regardless)
+  const MAX_SCALE = 0.33; // extra scale at closest distance (+50%)
+
+  // spring feel: lower DAMPING relative to STIFFNESS = more bounce/overshoot
+  const STIFFNESS = 130;
+  const DAMPING = 8.8;    // -33% (i.e. ~50% more bounce/overshoot for the same stiffness)
+  const LETTER_SCALE = 1.55; // letters read small/thin relative to the shapes, so boost them a bit
+
+  // Each letter has its own coordinate-space offset into blob space.
+  // M/D/M still live in the original letters-export canvas (need the
+  // shared offset); the new A path was pre-transformed directly into
+  // blob space when it was embedded, so it needs no further offset.
+  const LETTER_OFFSET_X = -295.28;
+  const LETTER_OFFSET_Y = -531.78;
+  const offsetsById = {
+    Layer_2: { x: LETTER_OFFSET_X, y: LETTER_OFFSET_Y },
+    Layer_3: { x: LETTER_OFFSET_X, y: LETTER_OFFSET_Y },
+    Layer_4: { x: LETTER_OFFSET_X, y: LETTER_OFFSET_Y },
+    Layer_1: { x: 0, y: 0 }
+  };
+
+  const centers = pairs.map(({ letter }, i) => {
+    const off = offsetsById[pairIds[i]];
+    const bbox = letter.getBBox();
+    const cx = bbox.x + bbox.width / 2 + off.x;
+    const cy = bbox.y + bbox.height / 2 + off.y;
+    return { x: cx, y: cy };
+  });
+
+  const state = pairs.map(() => ({
+    x: 0, y: 0, s: 1,
+    vx: 0, vy: 0, vs: 0,
+    tx: 0, ty: 0, ts: 1
+  }));
+
+  function toUserSpace(clientX, clientY) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    return pt.matrixTransform(ctm.inverse());
+  }
+
+  let lastClientX = -99999, lastClientY = -99999;
+
+  window.addEventListener('pointermove', (e) => {
+    lastClientX = e.clientX;
+    lastClientY = e.clientY;
+  });
+
+  window.addEventListener('pointerleave', () => {
+    lastClientX = -99999;
+    lastClientY = -99999;
+  });
+
+  window.addEventListener('pointerup', () => {
+    lastClientX = -99999;
+    lastClientY = -99999;
+  });
+
+  let lastTime = performance.now();
+
+  function frame(now) {
+    const dt = Math.min((now - lastTime) / 1000, 0.05);
+    lastTime = now;
+
+    const mouse = toUserSpace(lastClientX, lastClientY);
+
+    pairs.forEach(({ mark, letter }, i) => {
+      const c = centers[i];
+      const st = state[i];
+      let dist = Infinity, dx = 0, dy = 0;
+
+      if (mouse) {
+        dx = c.x - mouse.x;
+        dy = c.y - mouse.y;
+        dist = Math.hypot(dx, dy);
+      }
+
+      if (dist < RADIUS) {
+        const strength = 1 - dist / RADIUS;
+        const nx = dx / (dist || 1);
+        const ny = dy / (dist || 1);
+        st.tx = nx * strength * MAX_PUSH;
+        st.ty = ny * strength * MAX_PUSH;
+        st.ts = 1 + strength * MAX_SCALE;
+      } else {
+        st.tx = 0;
+        st.ty = 0;
+        st.ts = 1;
+      }
+
+      const ax = (st.tx - st.x) * STIFFNESS - st.vx * DAMPING;
+      st.vx += ax * dt;
+      st.x += st.vx * dt;
+
+      const ay = (st.ty - st.y) * STIFFNESS - st.vy * DAMPING;
+      st.vy += ay * dt;
+      st.y += st.vy * dt;
+
+      const as = (st.ts - st.s) * STIFFNESS - st.vs * DAMPING;
+      st.vs += as * dt;
+      st.s += st.vs * dt;
+
+      // manual "scale about an arbitrary point" math, since relying on
+      // CSS transform-origin proved unreliable here:
+      // p' = s*p + [ s*OFFSET + center*(1-s) + push ]
+      const s = st.s;
+      const markX = c.x * (1 - s) + st.x;
+      const markY = c.y * (1 - s) + st.y;
+      mark.style.transform = `translate(${markX}px, ${markY}px) scale(${s})`;
+
+      const ls = st.s * LETTER_SCALE;
+      const off = offsetsById[pairIds[i]];
+      const letterX = ls * off.x + c.x * (1 - ls) + st.x;
+      const letterY = ls * off.y + c.y * (1 - ls) + st.y;
+      letter.style.transform = `translate(${letterX}px, ${letterY}px) scale(${ls})`;
+
+      // motion blur: proportional to how fast the shape is currently moving
+      const speed = Math.hypot(st.vx, st.vy);
+      const blurPx = Math.min(speed * 0.006, 5).toFixed(2);
+      mark.style.filter = `blur(${blurPx}px)`;
+      letter.style.filter = `blur(${blurPx}px)`;
+    });
+
+    // keep the connector spines locked to each shape's current center,
+    // so there's always continuous mass for the goo filter to bridge
+    for (let i = 0; i < connectors.length; i++) {
+      const a = centers[i];
+      const b = centers[i + 1];
+      const sa = state[i];
+      const sb = state[i + 1];
+      connectors[i].setAttribute('x1', a.x + sa.x);
+      connectors[i].setAttribute('y1', a.y + sa.y);
+      connectors[i].setAttribute('x2', b.x + sb.x);
+      connectors[i].setAttribute('y2', b.y + sb.y);
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+
+  // click-to-bounce: clicking a shape (or its letter) gives it an instant
+  // outward push AND a "into the screen" z-space kick (shrinks first,
+  // like it's receding away from you) before the spring physics above
+  // bounces it back out to rest size.
+  const IMPULSE_VELOCITY = 1350;   // user-space units/sec, outward push (+50%)
+  const IMPULSE_Z_KICK = -9;       // negative = shrinks first (recedes), then springs back (+50%)
+
+  function bounceFromClick(i, clientX, clientY) {
+    const point = toUserSpace(clientX, clientY);
+    if (!point) return;
+    const c = centers[i];
+    const st = state[i];
+    const dx = c.x - point.x;
+    const dy = c.y - point.y;
+    const dist = Math.hypot(dx, dy) || 1;
+    const nx = dx / dist;
+    const ny = dy / dist;
+    st.vx += nx * IMPULSE_VELOCITY;
+    st.vy += ny * IMPULSE_VELOCITY;
+    st.vs += IMPULSE_Z_KICK;
+  }
+
+  pairs.forEach(({ mark, letter }, i) => {
+    [mark, letter].forEach((el) => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('pointerdown', (e) => {
+        bounceFromClick(i, e.clientX, e.clientY);
+      });
+    });
+  });
+</script>
+
+<script>
+  // fast mouse movement: temporarily exaggerate the chromatic split and
+  // add a light overall blur to the whole logo, easing back to the
+  // normal subtle look once the cursor slows down or stops
+  const stageEl = document.querySelector('.stage');
+  const chromaOffR = document.getElementById('chromaOffR');
+  const chromaOffB = document.getElementById('chromaOffB');
+
+  const BASE_OFFSET = 0.7;      // matches the filter's resting dx
+  const BASE_RATIO = 0.3 / 0.7; // resting dy/dx ratio, kept constant while scaling
+  const MAX_EXTRA_OFFSET = 4.5;
+  const MAX_BLUR = 3;           // px, kept small/"light" per the ask
+  const SPEED_NORMALIZE = 4500; // px/sec that maps to full effect
+
+  let prevX = null, prevY = null, prevT = performance.now();
+  let speedSpike = 0;
+  let smoothSpeed = 0;
+
+  window.addEventListener('pointermove', (e) => {
+    const now = performance.now();
+    const dt = Math.max(now - prevT, 1) / 1000;
+    if (prevX !== null) {
+      const dist = Math.hypot(e.clientX - prevX, e.clientY - prevY);
+      speedSpike = Math.max(speedSpike, dist / dt);
+    }
+    prevX = e.clientX;
+    prevY = e.clientY;
+    prevT = now;
+  });
+
+  function chromaTick() {
+    smoothSpeed += (speedSpike - smoothSpeed) * 0.35;
+    speedSpike *= 0.75; // decays so it settles once the mouse slows/stops
+
+    const t = Math.min(smoothSpeed / SPEED_NORMALIZE, 1);
+    const offset = BASE_OFFSET + t * MAX_EXTRA_OFFSET;
+
+    chromaOffR.setAttribute('dx', (-offset).toFixed(2));
+    chromaOffR.setAttribute('dy', (offset * BASE_RATIO).toFixed(2));
+    chromaOffB.setAttribute('dx', offset.toFixed(2));
+    chromaOffB.setAttribute('dy', (-offset * BASE_RATIO).toFixed(2));
+
+    stageEl.style.filter = `blur(${(t * MAX_BLUR).toFixed(2)}px)`;
+
+    requestAnimationFrame(chromaTick);
+  }
+  requestAnimationFrame(chromaTick);
+</script>
+
+</body>
+</html>
