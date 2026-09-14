@@ -8,10 +8,6 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<!-- Loaded asynchronously so it can never block the page's first render:
-     starts as preload (no CSSOM blocking), swaps to stylesheet once ready.
-     Falls back instantly to the system monospace stack below regardless
-     of network conditions. -->
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100&display=swap"></noscript>
 <style>
@@ -118,7 +114,6 @@
 
 <main>
   <div class="stage">
-    <a href="https://www.instagram.com/modular.drift/?hl=en" target="_blank" rel="noopener">
     <svg class="logo" viewBox="0 0 496.11 285.52" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <!-- classic "goo" filter: blur then sharpen alpha, so nearby marks
@@ -211,7 +206,6 @@
         <path class="letter-path" d="M403.68,694.06l-9.29-31.41,5.94,31.41h-3.6l-13.04-31.41,9.73,31.41h-4.23l-14.91-49.2h5.96l13.52,33.49-6.77-33.49h5.96l14.91,49.2h-4.19Z"/>
       </g>
     </svg>
-    </a>
   </div>
 </main>
 
@@ -304,13 +298,13 @@
     document.getElementById('connector-2')
   ];
 
-  const RADIUS = 170;     // user-space influence radius
-  const MAX_PUSH = 40;    // user-space max displacement (kept small so the goo never fully separates)
-  const MAX_SCALE = 0.22; // extra scale at closest distance
+  const RADIUS = 255;     // user-space influence radius (+50%)
+  const MAX_PUSH = 60;    // user-space max displacement (+50%; connector spine keeps shapes linked regardless)
+  const MAX_SCALE = 0.33; // extra scale at closest distance (+50%)
 
   // spring feel: lower DAMPING relative to STIFFNESS = more bounce/overshoot
-  const STIFFNESS = 190;
-  const DAMPING = 16;
+  const STIFFNESS = 130;
+  const DAMPING = 8.8;    // -33% (i.e. ~50% more bounce/overshoot for the same stiffness)
   const LETTER_SCALE = 1.55; // letters read small/thin relative to the shapes, so boost them a bit
 
   // Each letter has its own coordinate-space offset into blob space.
@@ -448,6 +442,37 @@
   }
 
   requestAnimationFrame(frame);
+
+  // click-to-bounce: clicking a shape (or its letter) gives it an instant
+  // outward push AND a "into the screen" z-space kick (shrinks first,
+  // like it's receding away from you) before the spring physics above
+  // bounces it back out to rest size.
+  const IMPULSE_VELOCITY = 1350;   // user-space units/sec, outward push (+50%)
+  const IMPULSE_Z_KICK = -9;       // negative = shrinks first (recedes), then springs back (+50%)
+
+  function bounceFromClick(i, clientX, clientY) {
+    const point = toUserSpace(clientX, clientY);
+    if (!point) return;
+    const c = centers[i];
+    const st = state[i];
+    const dx = c.x - point.x;
+    const dy = c.y - point.y;
+    const dist = Math.hypot(dx, dy) || 1;
+    const nx = dx / dist;
+    const ny = dy / dist;
+    st.vx += nx * IMPULSE_VELOCITY;
+    st.vy += ny * IMPULSE_VELOCITY;
+    st.vs += IMPULSE_Z_KICK;
+  }
+
+  pairs.forEach(({ mark, letter }, i) => {
+    [mark, letter].forEach((el) => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('pointerdown', (e) => {
+        bounceFromClick(i, e.clientX, e.clientY);
+      });
+    });
+  });
 </script>
 
 <script>
